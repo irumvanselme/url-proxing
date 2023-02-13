@@ -32,8 +32,8 @@ export default async function handler(
 			data: req.body,
 		});
 
-		return res.send(data.data);
+		return res.status(data.status).send(data.data);
 	} catch (error: any) {
-		return res.send(error.response.data);
+		return res.status(error.response.status).send(error.response.data);
 	}
 }
