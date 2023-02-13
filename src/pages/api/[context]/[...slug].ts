@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import axios from 'axios';
 import { proxyConf } from '../../../utils';
+import NextCors from 'nextjs-cors';
 
 export default async function handler(
 	req: NextApiRequest,
@@ -12,6 +13,13 @@ export default async function handler(
 	let instance = axios.create({
 		baseURL:
 			proxyConf[req.query.context as string] || 'http://google.com',
+	});
+
+	await NextCors(req, res, {
+		// Options
+		methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
+		origin: '*',
+		optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
 	});
 
 	try {
