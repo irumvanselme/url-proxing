@@ -7,13 +7,32 @@ export default async function handler(
 	req: NextApiRequest,
 	res: NextApiResponse<any>
 ) {
-  console.log(proxyConf[req.query.context as string]);
-
 	let slugs = (req.query.slug as string[]) || [];
+
 	let instance = axios.create({
 		baseURL:
 			proxyConf[req.query.context as string] || 'http://google.com',
 	});
+
+	let others = {
+		...req.query
+	}
+
+	delete others.context
+	delete others.slug
+
+	function serialize(obj: any) {
+		let str =
+			'?' +
+			Object.keys(obj)
+				.reduce(function (a, k) {
+					// @ts-ignore
+					a.push(k + '=' + encodeURIComponent(obj[k]));
+					return a;
+				}, [])
+				.join('&');
+		return str;
+	}
 
 	await NextCors(req, res, {
 		// Options
@@ -25,7 +44,7 @@ export default async function handler(
 	try {
 		let data = await instance({
 			method: req.method?.toLowerCase(),
-			url: slugs.join('/'),
+			url: slugs.join('/')+serialize(others),
 			headers: {
 				...req.headers,
 			},
